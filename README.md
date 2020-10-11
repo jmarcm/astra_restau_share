@@ -20,16 +20,26 @@ CREATE TABLE IF NOT EXISTS users_by_role (
   PRIMARY KEY (phone)
 );
 
-CREATE TABLE IF NOT EXISTS coloc.events (
-date date,
-user_phone text,
-user_first_name text,
-restaurant_name text,
-restaurant_area text,
-user_order text,
-amount float,
-paid boolean,
-PRIMARY KEY (user_phone, date)
+CREATE TABLE IF NOT EXISTS events (
+  date date,
+  user_phone text,
+  user_first_name text,
+  restaurant_name text,
+  restaurant_area text,
+  user_order text,
+  amount float,
+  paid boolean,
+  PRIMARY KEY (user_phone, date)
+);
+
+CREATE TABLE IF NOT EXISTS comments_by_restaurants (
+  restaurant_name text,
+  restaurant_area text,
+  user_phone text,
+  user_first_name text,
+  note float,
+  comment text,
+  PRIMARY KEY ((restaurant_name, restaurant_area), user_phone)
 );
  ```
  
@@ -93,5 +103,33 @@ UPDATE events SET amount = 22.50 WHERE user_phone = '03.02.01.02.06' AND date = 
 
 ```
 SELECT user_first_name, SUM(amount) AS total_due FROM events WHERE user_phone = '03.02.01.02.06' AND paid = false ALLOW FILTERING;
+```
 
+## A user can evaluate a restaurant
+
+### Add users evaluations
+```
+INSERT INTO comments_by_restaurants (restaurant_name , restaurant_area , user_phone , user_first_name , note, comment )
+VALUES ('Punjab', 'Center', '03.02.01.02.06', 'Quentin', 4, 'Excellent, mais un peu juste sur la quantite');
+INSERT INTO comments_by_restaurants (restaurant_name , restaurant_area , user_phone , user_first_name , note, comment )
+VALUES ('Punjab', 'Center', '03.02.01.02.03', 'Yasmine', 5, 'Bien agréable ! Bonne présentation !');
+INSERT INTO comments_by_restaurants (restaurant_name , restaurant_area , user_phone , user_first_name , note, comment )
+VALUES ('Eden', 'Center', '03.02.01.02.05', 'Océane', 3, '');
+```
+
+
+### Show user's evaluation of a restaurant - can be used to display empty form.
+```
+SELECT * FROM comments_by_restaurants WHERE restaurant_name = 'Punjab' AND restaurant_area = 'Center' AND user_phone = '03.02.01.02.03';
+SELECT * FROM comments_by_restaurants WHERE restaurant_name = 'Eden' AND restaurant_area = 'Center' AND user_phone = '03.02.01.02.03';
+SELECT COUNT(*) AS answered FROM comments_by_restaurants WHERE restaurant_name = 'Eden' AND restaurant_area = 'Center' AND user_phone = '03.02.01.02.03';
+```
+
+### Show restaurants evaluations
+```
+SELECT * FROM comments_by_restaurants WHERE restaurant_name = 'Punjab' AND restaurant_name = 'Center';
+// The average note of one restaurant;
+SELECT restaurant_name, restaurant_name, AVG(note) AS rate FROM comments_by_restaurants WHERE restaurant_name = 'Punjab' AND restaurant_area = 'Center';
+// The averages notes of all restaurant (descending order).
+SELECT restaurant_name, restaurant_area, AVG(note) AS rate FROM comments_by_restaurants GROUP BY restaurant_name, restaurant_area;
 ```
