@@ -41,6 +41,15 @@ CREATE TABLE IF NOT EXISTS comments_by_restaurants (
   comment text,
   PRIMARY KEY ((restaurant_name, restaurant_area), user_phone)
 );
+
+CREATE TABLE IF NOT EXISTS event_votes (
+  restaurant_name text,
+  restaurant_area text,
+  date date,
+  user_phone text,
+  user_first_name text,
+  PRIMARY KEY (date, restaurant_name, restaurant_area, user_phone)
+);
  ```
  
  ## Add data
@@ -132,4 +141,17 @@ SELECT * FROM comments_by_restaurants WHERE restaurant_name = 'Punjab' AND resta
 SELECT restaurant_name, restaurant_name, AVG(note) AS rate FROM comments_by_restaurants WHERE restaurant_name = 'Punjab' AND restaurant_area = 'Center';
 // The averages notes of all restaurant (descending order).
 SELECT restaurant_name, restaurant_area, AVG(note) AS rate FROM comments_by_restaurants GROUP BY restaurant_name, restaurant_area;
+```
+
+## Proposition du restaurant
+```
+INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
+VALUES ('Eden', 'Centre', '2020-10-08', '03.02.01.02.03', 'Yasmine');
+INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
+VALUES ('Eden', 'Centre', '2020-10-08', '03.02.01.02.05', 'Océane');
+INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
+VALUES ('KFC', 'Centre', '2020-10-08', '03.02.01.02.06', 'Quentin');
+
+// resultats
+SELECT date, restaurant_name, COUNT(restaurant_name) AS total_votes FROM event_votes WHERE date = '2020-10-08' GROUP BY restaurant_name;
 ```
