@@ -50,6 +50,14 @@ CREATE TABLE IF NOT EXISTS event_votes (
   user_first_name text,
   PRIMARY KEY (date, restaurant_name, restaurant_area, user_phone)
 );
+
+CREATE TABLE IF NOT EXISTS restaurants_by_date (
+  date date,
+  restaurant_name text,
+  restaurant_area text,
+  winner boolean,
+  PRIMARY KEY ((date), restaurant_name, restaurant_area)
+); 
  ```
  
  ## Add data
@@ -144,6 +152,25 @@ SELECT restaurant_name, restaurant_area, AVG(note) AS rate FROM comments_by_rest
 ```
 
 ## Proposition du restaurant
+
+### Manager propose restaurant
+```
+// Manager give choice
+INSERT INTO restaurants_by_date (date, restaurant_name, restaurant_area, winner)
+VALUES ('2020-10-08', 'KFC', 'Centre', false);
+INSERT INTO restaurants_by_date (date, restaurant_name, restaurant_area, winner)
+VALUES ('2020-10-08', 'Eden', 'Centre', false);
+
+// Manager impose one restaurant
+INSERT INTO restaurants_by_date (date, restaurant_name, restaurant_area, winner)
+VALUES ('2020-10-01', 'Punjab', 'Centre', true);
+
+
+// Query to display propositions
+SELECT * FROM restaurants_by_date WHERE date = '2020-10-08';
+```
+
+### Participants vote for a restaurant
 ```
 INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
 VALUES ('Eden', 'Centre', '2020-10-08', '03.02.01.02.03', 'Yasmine');
@@ -151,7 +178,37 @@ INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, use
 VALUES ('Eden', 'Centre', '2020-10-08', '03.02.01.02.05', 'Océane');
 INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
 VALUES ('KFC', 'Centre', '2020-10-08', '03.02.01.02.06', 'Quentin');
+INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
+VALUES ('KFC', 'Centre', '2020-10-08', '03.02.01.02.08', 'Aflred');
+INSERT INTO event_votes (restaurant_name, restaurant_area, date, user_phone, user_first_name)
+VALUES ('KFC', 'Centre', '2020-10-08', '03.02.01.02.09', 'Béa');
+```
+
+### Manager displays choosen restaurant
+```
+// get the winner from participants votes
+SELECT COUNT(restaurant_name) AS total_votes, date, restaurant_name, restaurant_area FROM event_votes WHERE date = '2020-10-08' GROUP BY restaurant_name, restaurant_area LIMIT 1;
+
+// set the winner
+UPDATE restaurants_by_date SET winner = true
+WHERE date = '2020-10-08' AND restaurant_name = 'Eden' AND restaurant_area = 'Centre';
+
+// query to display screen to choose order
+SELECT * FROM restaurants_by_date WHERE date = '2020-10-08' AND winner = true ALLOW FILTERING;
+```
+
+
 
 // resultats
 SELECT date, restaurant_name, COUNT(restaurant_name) AS total_votes FROM event_votes WHERE date = '2020-10-08' GROUP BY restaurant_name;
 ```
+CREATE TABLE IF NOT EXISTS events (
+  restaurant_name text,
+  restaurant_area text,
+  date date,
+  user_phone text,
+  votes counter,
+  PRIMARY KEY (date, restaurant_name, restaurant_area, user_phone)
+);
+
+INSERT INTO events (restaurant_
